@@ -24,8 +24,8 @@ fn transform_angle(l: f64, o: f64) -> f64 {
 
 pub fn get_psf(m: i32, n: i32, a1: f64, a2: f64, l1: f64, l2: f64, s: f64) -> Array2<f64> {
 	let mut mask = Array2::zeros((m as usize, n as usize));
-	// let mut a1 = a1 - 90.0;
-	// let mut a2 = a2 - 90.0;
+	let a1 = a1 - 90.0;
+	let a2 = a2 - 90.0;
 	for x in -(m / 2)..(m / 2) {
 		for y in -(n / 2)..(n / 2) {
 			let i_x = x + m / 2;
@@ -54,15 +54,20 @@ pub fn get_psf(m: i32, n: i32, a1: f64, a2: f64, l1: f64, l2: f64, s: f64) -> Ar
 
 #[cfg(test)]
 mod tests {
-	use super::*;
+	use rustfft::num_traits::Float;
+
+use super::*;
 
 	#[test]
 	fn test_get_psf() {
-		let psf = get_psf(300, 400, 45.0, 180.0-45.0, 0.75, 0.75, 0.010);
+		let psf = get_psf(40, 80, 45.0, 180.0-45.0, 0.75, 0.75, 0.010);
 		// write to grayscale image file
-		let mut imgbuf = image::ImageBuffer::new(psf.shape()[1] as u32, psf.shape()[0] as u32);
+		let mx = psf.iter().fold(0.0, |acc, &x| acc.max(x));
+		let mn = psf.iter().fold(0.0, |acc, &x| acc.min(x));
+		let mut imgbuf = image::ImageBuffer::new(psf.shape()[0] as u32, psf.shape()[1] as u32);
 		for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-			let val = psf[[y as usize, x as usize]];
+			let val = psf[[x as usize, y as usize]];
+			let val = (val - mn) / (mx - mn);
 			let val = (val * 255.0).min(255.0).max(0.0) as u8;
 			*pixel = image::Luma([val]);
 		}

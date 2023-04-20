@@ -1,1 +1,0 @@
-// Use https://docs.rs/image/latest/image/ to load and save images

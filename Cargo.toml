@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+enterpolation = "0.2.0"
 fft2d = "0.1.0"
 image = "0.24.6"
 ndarray = "0.15.6"
+palette = "0.7.1"
 rustfft = "6.1.0"
